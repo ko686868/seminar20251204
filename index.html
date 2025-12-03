@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI医療レコメンドサービス - 9件デモ</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Noto Sans JP', 'Segoe UI', sans-serif;
+            background-color: #f8f9fa; /* 非常に明るいグレー */
+            margin: 0;
+            padding: 40px 20px;
+            color: #343a40;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            background-color: #ffffff;
+            color: #0056b3; /* 濃いめの青 */
+            padding: 30px;
+            border-bottom: 5px solid #007bff; /* メインカラーのライン */
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        .region-info {
+            font-size: 1em;
+            opacity: 0.8;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        /* Input Section */
+        .input-section {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            border-left: 5px solid #28a745; /* 緑のアクセント */
+        }
+
+        .input-section h2 {
+            font-size: 1.5em;
+            color: #28a745;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .input-section textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 1em;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .input-section textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .input-section button {
+            display: block;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .input-section button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Results Section */
+        .results-section h2 {
+            color: #343a40;
+            font-size: 1.6em;
+            margin-bottom: 30px;
+            text-align: left;
+            border-bottom: 2px solid #ced4da;
+            padding-bottom: 10px;
+        }
+
+        .hospital-list {
+            display: grid;
+            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        /* Hospital Card (Flat and Information Focused) */
+        .hospital-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            border-top: 5px solid #ffc107; /* 評価の黄色 */
+            transition: box-shadow 0.3s;
+        }
+
+        .hospital-card:hover {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .hospital-card h3 {
+            color: #007bff;
+            margin-top: 0;
+            font-size: 1.4em;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .meta-info {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .rating {
+            font-size: 1.3em;
+            color: #ffc107;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        /* Summary Boxes */
+        .summary-box {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ced4da;
+        }
+
+        .summary-box h4 {
+            font-size: 1em;
+            color: #343a40;
+            margin: 0 0 10px 0;
+        }
+
+        .positive, .negative {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .positive {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .negative {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .ai-analysis-header {
+            background-color: #e9ecef; /* 淡いグレー */
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #495057;
+            border-left: 6px solid #007bff;
+            font-size: 1.05em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AIメディカル・レコメンドシステム</h1>
+            <p class="region-info">現在地の設定: **宮城県 仙台市**</p>
+        </header>
+
+        <div class="input-section">
+            <h2>🩺 AIコンシェルジュに相談</h2>
+            <textarea id="symptomInput" placeholder="例：昨日の夜から胃がキリキリ痛くて、熱が38度あります。待ち時間が短いところがいいです。"></textarea>
+            <button onclick="simulateSearch()">AIに相談し、最適な病院を検索する</button>
+        </div>
+
+        <div class="results-section">
+            <div id="resultsContent" style="display:none;">
+                <div class="ai-analysis-header" id="aiAnalysisHeader">
+                    </div>
+                
+                <h2>✨ おすすめの病院候補 (9件)</h2>
+                <div class="hospital-list" id="hospitalList">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ダミーデータ（AIが推論した結果を想定） - 9件に拡張
+        const hospitals = [
+            {
+                name: "仙台駅前消化器内科クリニック",
+                specialty: "消化器内科・内科",
+                rating: "★★★★★ 4.7",
+                address: "青葉区中央1丁目",
+                positive: "AI分析: **『医師の知識量と経験が豊富』**で、『説明が非常に論理的でわかりやすい』と圧倒的な高評価が集中。",
+                negative: "AI分析: 予約なしの場合、『待ち時間が平均30分を超えやすい』というネガティブなコメントが目立ちます。予約推奨。",
+            },
+            {
+                name: "光の杜ファミリークリニック",
+                specialty: "内科・小児科・一般外来",
+                rating: "★★★★☆ 4.2",
+                address: "宮城野区榴岡2丁目",
+                positive: "AI分析: **『受付の対応がフレンドリーで親切』**、『ウェブ予約システムが完璧でスムーズ』と評価されています。",
+                negative: "AI分析: 診療時間が短く、込み合う時間帯は診察が少し駆け足に感じるというコメントがあります。",
+            },
+            {
+                name: "東北総合病院",
+                specialty: "総合病院・高度医療",
+                rating: "★★★☆☆ 3.8",
+                address: "太白区あすと長町3丁目",
+                positive: "AI分析: 重大な病気や専門的な検査が必要な場合でも、全て院内で完結できる**『安心感』**が高く評価されています。",
+                negative: "AI分析: 『待ち時間』と『会計までの時間』に関する不満が最も多く、時間に余裕がある方向けです。",
+            },
+            {
+                name: "泉区皮膚科・内科",
+                specialty: "皮膚科・内科",
+                rating: "★★★★☆ 4.4",
+                address: "泉区泉中央4丁目",
+                positive: "AI分析: 皮膚トラブルと内科的な関連を同時に診察できる『連携の良さ』が評価されています。",
+                negative: "AI分析: 午後の診療開始直後は比較的混雑するため、待ち時間が長くなる可能性があります。",
+            },
+            {
+                name: "若林区整形外科クリニック",
+                specialty: "整形外科・リハビリテーション科",
+                rating: "★★★★☆ 4.6",
+                address: "若林区六丁の目2丁目",
+                positive: "AI分析: リハビリスタッフが充実しており、**『丁寧な指導と高い専門性』**に関する口コミが多いです。",
+                negative: "AI分析: 待合室のスペースが狭く、混雑時に『座る場所がない』というコメントが一部見られます。",
+            },
+            {
+                name: "仙台呼吸器クリニック",
+                specialty: "呼吸器内科・アレルギー科",
+                rating: "★★★★★ 4.8",
+                address: "青葉区国分町3丁目",
+                positive: "AI分析: 喘息やアレルギーの専門性が非常に高く、**『長年の症状が改善した』**という声が多数。",
+                negative: "AI分析: 予約が取りにくい日があるため、早めの予約が必要とのコメントがあります。",
+            },
+            {
+                name: "太白区小児科医院",
+                specialty: "小児科",
+                rating: "★★★★☆ 4.3",
+                address: "太白区長町南1丁目",
+                positive: "AI分析: 看護師が子どもに優しく、『親切な対応で子どもが泣かない』と保護者からの評判が高いです。",
+                negative: "AI分析: 予防接種の時間帯と一般診療の時間帯が重なり、待ち時間が発生することがあります。",
+            },
+            {
+                name: "青葉通心療内科",
+                specialty: "心療内科・精神科",
+                rating: "★★★★☆ 4.5",
+                address: "青葉区一番町2丁目",
+                positive: "AI分析: **『じっくり話を聞いてくれる』**点が評価されており、医師との信頼関係を重視する人におすすめ。",
+                negative: "AI分析: プライバシー保護のため待合室の人数が制限されており、予約時間ぴったりに行っても待つことがあります。",
+            },
+            {
+                name: "宮城野区眼科",
+                specialty: "眼科",
+                rating: "★★★☆☆ 3.9",
+                address: "宮城野区新田東5丁目",
+                positive: "AI分析: 白内障や緑内障の**『最新機器による検査体制』**が整っている点が強みです。",
+                negative: "AI分析: コンタクトレンズの処方が混み合い、受付から会計まで時間がかかるという指摘があります。",
+            }
+        ];
+
+        function createHospitalCard(hospital) {
+            return `
+                <div class="hospital-card">
+                    <h3>${hospital.name}</h3>
+                    <p class="meta-info"><strong>専門:</strong> ${hospital.specialty}</p>
+                    <div class="rating">${hospital.rating}</div>
+                    <p class="meta-info"><strong>所在地:</strong> ${hospital.address}</p>
+
+                    <div class="summary-box">
+                        <h4>📢 AI口コミ感情分析レポート</h4>
+                        <div class="positive">
+                            <strong>高評価ポイント:</strong> ${hospital.positive}
+                        </div>
+                        <div class="negative">
+                            <strong>注意すべき点:</strong> ${hospital.negative}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function simulateSearch() {
+            const input = document.getElementById('symptomInput').value;
+            const listElement = document.getElementById('hospitalList');
+            const contentElement = document.getElementById('resultsContent');
+            const headerElement = document.getElementById('aiAnalysisHeader');
+            
+            listElement.innerHTML = '';
+            contentElement.style.display = 'block';
+            headerElement.innerHTML = '<span style="color:#007bff;">処理中...</span> AIが症状「' + input.substring(0, 20) + '...」を分析し、最適な病院を選定中です... 🧠';
+
+            // 結果表示を少し遅らせて、AI処理のシミュレーション
+            setTimeout(() => {
+                const assumedSpecialty = "🩺 **AI推論結果**：【胃痛・発熱、待ち時間優先】から **消化器内科 または 内科** の受診を推奨します。";
+                
+                headerElement.innerHTML = assumedSpecialty;
+                listElement.innerHTML = hospitals.map(createHospitalCard).join('');
+            }, 1500); // 1.5秒後に結果を表示
+        }
+        
+        // ページロード時にダミーデータを表示
+        document.addEventListener('DOMContentLoaded', simulateSearch);
+    </script>
+</body>
+</html>
