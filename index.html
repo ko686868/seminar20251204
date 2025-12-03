@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI医療レコメンドサービス - 9件デモ</title>
+    <title>AIメディカル・コンシェルジュ - デモ</title>
     <style>
         /* Base Styles */
         body {
@@ -81,7 +81,9 @@
         }
 
         .input-section button {
-            display: block;
+            display: flex; /* アイコンとテキストを横並びにする */
+            align-items: center; /* 垂直方向中央揃え */
+            justify-content: center; /* 水平方向中央揃え */
             width: 100%;
             background-color: #007bff;
             color: white;
@@ -92,6 +94,13 @@
             font-size: 1.1em;
             font-weight: 600;
             transition: background-color 0.3s, transform 0.1s;
+        }
+        
+        /* ボタンのアイコン */
+        .input-section button::before {
+            content: '🤖'; /* アイコンのユニコード */
+            margin-right: 8px; /* アイコンとテキストの間隔 */
+            font-size: 1.2em; /* アイコンのサイズ */
         }
 
         .input-section button:hover {
@@ -197,7 +206,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>AIメディカル・レコメンドシステム</h1>
+            <h1>AIメディカル・コンシェルジュ</h1>
             <p class="region-info">現在地の設定: **宮城県 仙台市**</p>
         </header>
 
@@ -208,8 +217,7 @@
         </div>
 
         <div class="results-section">
-            <div id="resultsContent" style="display:none;">
-                <div class="ai-analysis-header" id="aiAnalysisHeader">
+            <div id="resultsContent" style="display:none;"> <div class="ai-analysis-header" id="aiAnalysisHeader">
                     </div>
                 
                 <h2>✨ おすすめの病院候補 (9件)</h2>
@@ -220,7 +228,7 @@
     </div>
 
     <script>
-        // ダミーデータ（AIが推論した結果を想定） - 9件に拡張
+        // ダミーデータ（AIが推論した結果を想定） - 9件
         const hospitals = [
             {
                 name: "仙台駅前消化器内科クリニック",
@@ -323,9 +331,11 @@
             const contentElement = document.getElementById('resultsContent');
             const headerElement = document.getElementById('aiAnalysisHeader');
             
-            listElement.innerHTML = '';
+            // 結果表示エリアを表示
             contentElement.style.display = 'block';
-            headerElement.innerHTML = '<span style="color:#007bff;">処理中...</span> AIが症状「' + input.substring(0, 20) + '...」を分析し、最適な病院を選定中です... 🧠';
+            listElement.innerHTML = ''; // 一度クリア
+            
+            headerElement.innerHTML = '<span style="color:#007bff;">処理中...</span> AIが症状「' + input.substring(0, Math.min(input.length, 20)) + '...」を分析し、最適な病院を選定中です... 🧠';
 
             // 結果表示を少し遅らせて、AI処理のシミュレーション
             setTimeout(() => {
@@ -336,8 +346,8 @@
             }, 1500); // 1.5秒後に結果を表示
         }
         
-        // ページロード時にダミーデータを表示
-        document.addEventListener('DOMContentLoaded', simulateSearch);
+        // 初期表示では結果コンテンツは非表示のまま
+        // document.addEventListener('DOMContentLoaded', simulateSearch); // この行を削除/コメントアウト
     </script>
 </body>
 </html>
